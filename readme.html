@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Seri Twitch Bot – Reminders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #2b2d30;
+  --bg-alt: #202227;
+  --text: #d9dadb;
+  --text-dim: #9aa0ab;
+  --accent: #6771ff;
+  --accent-fg: #ffffff;
+  --border: #28303b;
+  --code-bg: #20262e;
+  --danger: #ff5f56;
+  --warn: #ffbd2e;
+  --ok: #27c93f;
+  --radius: 10px;
+  --focus: 0 0 0 3px rgba(93,139,255,.35);
+  font-family: 'Lexend', system-ui, sans-serif;
+}
+.light {
+  --bg: #e9e9e9;
+  --bg-alt: #f8f7fd;
+  --text: #1c222b;
+  --text-dim: #5a6472;
+  --accent: #3740be;
+  --accent-fg: #fff3f3;
+  --border: #d8dde3;
+  --code-bg: #eef1f5;
+}
+* { box-sizing: border-box; }
+html,body { margin:0; padding:0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.45; }
+body { -webkit-font-smoothing: antialiased; }
+
+header { padding: 2.5rem 1.25rem 1rem; max-width: 1080px; margin: 0 auto; }
+header h1 { margin:0 0 .5rem; font-size: clamp(1.9rem, 4.2vw, 2.75rem); font-weight:600; letter-spacing:.5px; }
+header p { margin:.25rem 0 0; color: var(--text-dim); max-width: 60ch; }
+
+#themeToggle { position: fixed; top: 14px; right: 14px; background: var(--bg-alt); color: var(--text); border:1px solid var(--border); padding:.55rem .95rem; border-radius: 999px; cursor:pointer; font-size:.85rem; display:flex; align-items:center; gap:.5rem; transition:.25s background,color,border; }
+#themeToggle:focus { outline:none; box-shadow: var(--focus); }
+#themeToggle:hover { background: var(--accent); color: var(--accent-fg); }
+
+main { max-width: 1080px; margin:0 auto; padding: 0 1.25rem 4rem; }
+section { background: var(--bg-alt); padding:1.4rem 1.5rem 1.6rem; border:1px solid var(--border); border-radius: var(--radius); margin-bottom:1.4rem; box-shadow: 0 4px 10px -4px rgba(0,0,0,.4); }
+section h2 { margin:0 0 .85rem; font-size:1.35rem; font-weight:600; letter-spacing:.5px; }
+section h3 { margin:1.6rem 0 .6rem; font-size:1.05rem; font-weight:600; }
+section p { margin:.6rem 0 1rem; }
+hr { border:none; height:1px; background: var(--border); margin:2rem 0; }
+
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.9rem; }
+code { background: var(--code-bg); color: var(--accent); padding:.15rem .45rem; border-radius:6px; }
+pre { background: var(--code-bg); padding:1rem 1.1rem; border-radius: var(--radius); overflow-x:auto; border:1px solid var(--border); }
+pre code { background: transparent; color: var(--text); padding:0; }
+
+.inline-badge { display:inline-block; background: var(--accent); color: var(--accent-fg); padding:.15rem .55rem .25rem; border-radius:6px; font-size:.65rem; text-transform:uppercase; letter-spacing:.7px; font-weight:600; }
+.flex { display:flex; flex-wrap:wrap; gap:.85rem; }
+.small { font-size:.8rem; color: var(--text-dim); }
+ul { padding-left:1.1rem; margin:.5rem 0 1.2rem; }
+li { margin:.25rem 0; }
+
+.table-like { width:100%; border-collapse:collapse; margin: .5rem 0 1.2rem; }
+.table-like th, .table-like td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--border); font-size:.85rem; }
+.table-like th { background: var(--bg); font-weight:600; }
+
+footer { max-width:1080px; margin: 1rem auto 2rem; padding:0 1rem; font-size:.75rem; color: var(--text-dim); text-align:center; }
+@media (max-width:720px){ section { padding:1.1rem 1.1rem 1.3rem; } }
+
+a[href="https://twitch.tv/pastelchrome"] {
+  color: #C2A98F;
+}
+
+</style>
+</head>
+<body>
+<button id="themeToggle" aria-label="toggle theme" title="toggle light or dark mode">🌙</button>
+<header>
+  <h1>pastebotting Twitch Bot – Reminders</h1>
+  <p>A private Twitch chat bot with a lightweight reminder module: schedule, list, and manage reminders with natural time formats. Runs in GMT+8 aka local Singapore Time.</p>
+</header>
+<main>
+  <section id="overview">
+    <h2>Overview</h2>
+    <p><span class="inline-badge">Prefix</span> <code>-</code></p>
+    <p>Reminders are delivered in the same channel where they are created and will mention the requester in the following format: <code>@username // HH:MM:SS &lt;message&gt;</code></p>
+    <p>tl;dr <code>-r 30m mvp</code> reminds you in 30 minutes to go for MVP</p>
+  </section>
+  <section id="commands">
+    <h2>Commands</h2>
+    <h3>-remind &lt;duration&gt; &lt;message&gt; <span class="small">(alias: -r)</span></h3>
+    <p>Create a new reminder. Bot will confirm when successful with reply: <code>reminder set for &lt;time&gt; // &lt;message&gt;</code></p>
+    <ul>
+      <li>All times displayed will be shown in <code>HH:MM:SS</code> format if they will fire within 24h</li>
+      <li>If they fire beyond 24h, they will be shown as <code>DD/MM, HH:MM:SS</code></li>
+    </ul>
+    <h3>-remindlist <span class="small">(alias: -rlist)</span></h3>
+    <p>List your active reminders numbered for deletion. If you have too many reminders or if reminder message is too long, the output will be clipped for Twitch Chat length limits.</p>
+    <pre><code>@user has 2 reminders: [1] 23:13:33 rebuff 2x | [2] 09:24:00 threads</code></pre>
+    <h3>-rdelete &lt;index&gt; <span class="small">(alias: -rdel)</span></h3>
+    <p>Delete your reminders by its index from <code>-remindlist</code>.</p>
+    <h3>-rfresh <span class="small">(only for administrative purposes)</span></h3>
+    <p>Process expired reminders immediately and reschedule future ones for the current channel. Usually done after a restart</p>
+  </section>
+  <section id="timecodes">
+    <h2>Accepted Timecode Formats</h2>
+    <h3>Relative Duration (no spaces)</h3>
+    <p>Supported units: <code>h</code> (hours), <code>m</code> (minutes), <code>s</code> (seconds). Combine freely.</p>
+    <pre><code>15s
+45m
+2h
+1h30m</code></pre>
+    <h3>UTC+8 Absolute Time (24 hour)</h3>
+    <p>Accepts <code>HHMM</code>, <code>HMM</code>, or <code>HH:MM</code>. If the time has already passed today, will be scheduled on the next occurrence of that clock time.</p>
+    <pre><code>1930   # 19:30 (7:30 PM)
+07:05  # 07:05
+7      # 07:00
+730    # 07:30</code></pre>
+    <h3>12-hour with am/pm</h3>
+    <p>Will be scheduled on the next occurrence of that clock time.</p>
+    <pre><code>7pm
+730pm
+7:30pm
+12:05am</code></pre>
+  </section>
+  <section id="examples">
+    <h2>Usage Examples</h2>
+    <pre><code>-r 15s hydrate
+-r 2h30m start cooking
+-r 1930 dinner
+-r 7:30pm stream
+-rlist
+-rdelete 1</code></pre>
+  </section>
+  <section id="notes">
+    <h2>Notes</h2>
+    <ul>
+      <li>Reminders are saved internally as <code>YYYY-MM-DD HH:MM:SS</code>; displayed compactly for the purposes of Twitch Chat.</li>
+      <li>Deleting a reminder before it fires prevents delivery.</li>
+      <li>After restart, reminders are auto-scheduled; but it may sometimes not bind to the chat channel. Recommended to always run <code>-rfresh</code> first to bind bot to the channel.</li>
+      <li>Honestly I did this is under a day or something so if anything breaks please contact me <a href="https://twitch.tv/pastelchrome" target="_blank" rel="noopener noreferrer">@pastelchrome</a> or on Discord <font color="99c5e4">@_pastel</font>.</li>
+    </ul>
+  </section>
+</main>
+<footer>
+  <p>@pastebotting Twitch Bot - Reminders &middot; Developed and maintained by <a href="https://twitch.tv/pastelchrome" target="_blank" rel="noopener noreferrer">@pastelchrome</a></p>
+</footer>
+<script>
+const btn = document.getElementById('themeToggle');
+const root = document.documentElement;
+function setMode(mode){
+  if(mode==='light'){ root.classList.add('light'); btn.textContent='☀️'; }
+  else { root.classList.remove('light'); btn.textContent='🌙'; }
+  localStorage.setItem('reminder-doc-mode', mode);
+}
+btn.addEventListener('click', ()=>{
+  const light = root.classList.toggle('light');
+  setMode(light ? 'light' : 'dark');
+});
+// Init
+const saved = localStorage.getItem('reminder-doc-mode');
+if(saved==='light'){ root.classList.add('light'); btn.textContent='☀️'; }
+</script>
+</body>
+</html>
